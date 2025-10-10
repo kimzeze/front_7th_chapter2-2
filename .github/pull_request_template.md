@@ -1,10 +1,9 @@
 ## 과제 체크포인트
-
 ### 배포 링크
 
 <!--
 배포 링크를 적어주세요
-예시: https://<username>.github.io/front-lite-chapter2-2/
+예시: https://<username>.github.io/front-7th-chapter2-2/
 
 배포가 완료되지 않으면 과제를 통과할 수 없습니다.
 배포 후에 정상 작동하는지 확인해주세요.
@@ -12,40 +11,28 @@
 
 ### 기본과제
 
-#### Phase 1: VNode와 기초 유틸리티
-- [ ] `core/elements.ts`: `createElement`, `normalizeNode`, `createChildPath`
-- [ ] `utils/validators.ts`: `isEmptyValue`
-- [ ] `utils/equals.ts`: `shallowEquals`, `deepEquals`
+#### 가상돔을 기반으로 렌더링하기
 
-#### Phase 2: 컨텍스트와 루트 초기화
-- [ ] `core/types.ts`: VNode/Instance/Context 타입 선언
-- [ ] `core/context.ts`: 루트/훅 컨텍스트와 경로 스택 관리
-- [ ] `core/setup.ts`: 컨테이너 초기화, 컨텍스트 리셋, 루트 렌더 트리거
+- [ ] createVNode 함수를 이용하여 vNode를 만든다.
+- [ ] normalizeVNode 함수를 이용하여 vNode를 정규화한다.
+- [ ] createElement 함수를 이용하여 vNode를 실제 DOM으로 만든다.
+- [ ] 결과적으로, JSX를 실제 DOM으로 변환할 수 있도록 만들었다.
 
-#### Phase 3: DOM 인터페이스 구축
-- [ ] `core/dom.ts`: 속성/스타일/이벤트 적용 규칙, DOM 노드 탐색/삽입/제거
+#### 이벤트 위임
 
-#### Phase 4: 렌더 스케줄링
-- [ ] `utils/enqueue.ts`: `enqueue`, `withEnqueue`로 마이크로태스크 큐 구성
-- [ ] `core/render.ts`: `render`, `enqueueRender`로 루트 렌더 사이클 구현
+- [ ] 노드를 생성할 때 이벤트를 직접 등록하는게 아니라 이벤트 위임 방식으로 등록해야 한다
+- [ ] 동적으로 추가된 요소에도 이벤트가 정상적으로 작동해야 한다
+- [ ] 이벤트 핸들러가 제거되면 더 이상 호출되지 않아야 한다
 
-#### Phase 5: Reconciliation
-- [ ] `core/reconciler.ts`: 마운트/업데이트/언마운트, 자식 비교, key/anchor 처리
-- [ ] `core/dom.ts`: Reconciliation에서 사용할 DOM 재배치 보조 함수 확인
+### 심화 과제
 
-#### Phase 6: 기본 Hook 시스템
-- [ ] `core/hooks.ts`: 훅 상태 저장, `useState`, `useEffect`, cleanup/queue 관리
-- [ ] `core/context.ts`: 훅 커서 증가, 방문 경로 기록, 미사용 훅 정리
+#### Diff 알고리즘 구현
 
-**기본 과제 완료 기준**: `basic.equals.test.tsx`, `basic.mini-react.test.tsx` 전부 통과
-
-### 심화과제
-
-#### Phase 7: 확장 Hook & HOC
-- [ ] `hooks/useRef.ts`: ref 객체 유지
-- [ ] `hooks/useMemo.ts`, `hooks/useCallback.ts`: shallow 비교 기반 메모이제이션
-- [ ] `hooks/useDeepMemo.ts`, `hooks/useAutoCallback.ts`: deep 비교/자동 콜백 헬퍼
-- [ ] `hocs/memo.ts`, `hocs/deepMemo.ts`: props 비교 기반 컴포넌트 메모이제이션
+- [ ] 초기 렌더링이 올바르게 수행되어야 한다
+- [ ] diff 알고리즘을 통해 변경된 부분만 업데이트해야 한다
+- [ ] 새로운 요소를 추가하고 불필요한 요소를 제거해야 한다
+- [ ] 요소의 속성만 변경되었을 때 요소를 재사용해야 한다
+- [ ] 요소의 타입이 변경되었을 때 새로운 요소를 생성해야 한다
 
 ## 과제 셀프회고
 
@@ -55,14 +42,13 @@
 <!--
 과제를 진행하며 "아!" 하고 깨달음을 얻었던 순간이 있다면 공유해주세요.
 어떤 부분에서 어려움을 겪다가, 어떤 계기로 개념이 명확해졌나요?
-(예: "useState의 클로저와 호출 순서의 관계를 디버깅하며 비로소 이해했습니다.")
 -->
 
 ### 기술적 성장
-<!--
-- 이번 과제를 통해 새로 학습한 개념은 무엇인가요?
-- 기존에 알고 있던 지식이 어떻게 더 깊어졌나요?
-- 구현 과정에서 마주친 기술적 도전과, 이를 어떻게 해결했나요?
+<!-- 예시
+- 새로 학습한 개념
+- 기존 지식의 재발견/심화
+- 구현 과정에서의 기술적 도전과 해결
 -->
 
 ### 코드 품질
