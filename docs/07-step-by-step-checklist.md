@@ -26,7 +26,7 @@
   # 모든 테스트가 실패하면 정상! (아직 구현 안 했으니까)
   ```
 
-- [ ] **브랜치 생성**
+- [x] **브랜치 생성**
   ```bash
   git checkout -b feat/implement-mini-react
   ```
@@ -39,11 +39,11 @@
 
 ### Step 1.1: isEmptyValue 구현
 
-- [ ] **파일 열기:** `packages/react/src/utils/validators.ts`
+- [x] **파일 열기:** `packages/react/src/utils/validators.ts`
 
-- [ ] **생각하기:** "null, undefined, boolean은 화면에 렌더링되면 안 되니까 '비어있다'고 판단해야 해"
+- [x] **생각하기:** "null, undefined, boolean은 화면에 렌더링되면 안 되니까 '비어있다'고 판단해야 해"
 
-- [ ] **코드 작성:**
+- [x] **코드 작성:**
 
   ```typescript
   export function isEmptyValue(value: unknown): boolean {
@@ -78,11 +78,11 @@
 
 ### Step 1.2: shallowEquals 구현
 
-- [ ] **파일 열기:** `packages/react/src/utils/equals.ts`
+- [x] **파일 열기:** `packages/react/src/utils/equals.ts`
 
-- [ ] **생각하기:** "두 값이 '얕게' 같은지 비교. 객체는 1단계만 비교하면 돼"
+- [x] **생각하기:** "두 값이 '얕게' 같은지 비교. 객체는 1단계만 비교하면 돼"
 
-- [ ] **코드 작성:**
+- [x] **코드 작성:**
 
   ```typescript
   export function shallowEquals(a: unknown, b: unknown): boolean {
