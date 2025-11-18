@@ -309,11 +309,13 @@
 
 ### Step 2.1: types.ts 정의
 
-- [ ] **파일 열기:** `packages/react/src/core/types.ts`
+<!-- 이미 설정되어 있음 -->
 
-- [ ] **생각하기:** "VNode, Instance, Context 타입을 명확히 정의해야 나중에 헷갈리지 않아"
+- [x] **파일 열기:** `packages/react/src/core/types.ts`
 
-- [ ] **코드 작성:**
+- [x] **생각하기:** "VNode, Instance, Context 타입을 명확히 정의해야 나중에 헷갈리지 않아"
+
+- [x] **코드 작성:**
 
   ```typescript
   export type VNode = {
@@ -377,11 +379,11 @@
 
 ### Step 2.2: context.ts 구현
 
-- [ ] **파일 열기:** `packages/react/src/core/context.ts`
+- [x] **파일 열기:** `packages/react/src/core/context.ts`
 
-- [ ] **생각하기:** "전역 컨텍스트를 만들어서 모든 Hook과 렌더링 상태를 여기서 관리"
+- [x] **생각하기:** "전역 컨텍스트를 만들어서 모든 Hook과 렌더링 상태를 여기서 관리"
 
-- [ ] **코드 작성:**
+- [x] **코드 작성:**
 
   ```typescript
   import type { Context } from "./types";
@@ -449,13 +451,13 @@
   };
   ```
 
-- [ ] **저장 후 확인:**
+- [x] **저장 후 확인:**
 
   ```bash
   pnpm run type-check
   ```
 
-- [ ] **커밋:**
+- [x] **커밋:**
   ```bash
   git add packages/react/src/core/context.ts
   git commit -m "feat: implement global context for state management"
@@ -465,11 +467,11 @@
 
 ### Step 2.3: setup.ts 구현
 
-- [ ] **파일 열기:** `packages/react/src/core/setup.ts`
+- [x] **파일 열기:** `packages/react/src/core/setup.ts`
 
-- [ ] **생각하기:** "렌더링의 진입점. 컨테이너 검증하고 컨텍스트 초기화한 다음 render 호출"
+- [x] **생각하기:** "렌더링의 진입점. 컨테이너 검증하고 컨텍스트 초기화한 다음 render 호출"
 
-- [ ] **코드 작성:**
+- [x] **코드 작성:**
 
   ```typescript
   import { context } from "./context";
@@ -510,11 +512,11 @@
 
 ### Step 2.4: client/index.ts 구현
 
-- [ ] **파일 열기:** `packages/react/src/client/index.ts`
+- [x] **파일 열기:** `packages/react/src/client/index.ts`
 
-- [ ] **생각하기:** "React의 createRoot API처럼 만들어야 해"
+- [x] **생각하기:** "React의 createRoot API처럼 만들어야 해"
 
-- [ ] **코드 작성:**
+- [x] **코드 작성:**
 
   ```typescript
   import { setup } from "../core/setup";
@@ -540,13 +542,13 @@
   }
   ```
 
-- [ ] **저장 후 확인:**
+- [x] **저장 후 확인:**
 
   ```bash
   pnpm run type-check
   ```
 
-- [ ] **커밋:**
+- [x] **커밋:**
   ```bash
   git add packages/react/src/client/index.ts
   git commit -m "feat: implement createRoot API"
@@ -556,9 +558,9 @@
 
 ### Step 2.5: Phase 2 완료 체크
 
-- [ ] **export 확인:** `packages/react/src/index.ts` 파일 열기
+- [x] **export 확인:** `packages/react/src/index.ts` 파일 열기
 
-- [ ] **필요한 export 추가:**
+- [x] **필요한 export 추가:**
 
   ```typescript
   export { createRoot } from "./client";
@@ -566,14 +568,14 @@
   export type { VNode } from "./core/types";
   ```
 
-- [ ] **빌드 확인:**
+- [x] **빌드 확인:**
 
   ```bash
   cd packages/react
   pnpm build
   ```
 
-- [ ] **커밋:**
+- [x] **커밋:**
   ```bash
   git add .
   git commit -m "chore: complete Phase 2 - Context and root initialization"
@@ -587,11 +589,11 @@
 
 ### Step 3.1: dom.ts - setDomProps 구현
 
-- [ ] **파일 열기:** `packages/react/src/core/dom.ts`
+- [x] **파일 열기:** `packages/react/src/core/dom.ts`
 
-- [ ] **생각하기:** "props를 DOM에 적용. 이벤트, style, className, 일반 속성 각각 다르게 처리"
+- [x] **생각하기:** "props를 DOM에 적용. 이벤트, style, className, 일반 속성 각각 다르게 처리"
 
-- [ ] **코드 작성:**
+- [x] **코드 작성:**
 
   ```typescript
   /**
@@ -645,9 +647,9 @@
 
 ### Step 3.2: dom.ts - updateDomProps 구현
 
-- [ ] **파일:** `packages/react/src/core/dom.ts` (이미 열려있음)
+- [x] **파일:** `packages/react/src/core/dom.ts`
 
-- [ ] **생각하기:** "이전 props와 새 props 비교해서 변경된 것만 업데이트"
+- [x] **생각하기:** "이전 props와 새 props 비교해서 변경된 것만 업데이트"
 
 - [ ] **코드 추가:**
 
