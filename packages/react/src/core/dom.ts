@@ -46,27 +46,124 @@ export const setDomProps = (dom: HTMLElement, props: Record<string, any>): void 
  * 변경된 속성만 효율적으로 DOM에 반영해야 합니다.
  */
 export const updateDomProps = (
-  _dom: HTMLElement,
-  _prevProps: Record<string, any> = {},
-  _nextProps: Record<string, any> = {},
+  dom: HTMLElement,
+  prevProps: Record<string, any> = {},
+  nextProps: Record<string, any> = {},
 ): void => {
-  // 여기를 구현하세요.
+  // 1. 이전 props 제거
+  for (const [key, value] of Object.entries(prevProps)) {
+    if (key === "children") {
+      continue;
+    }
+
+    // nextProps에 없는 속성 제거
+    if (!(key in nextProps)) {
+      if (key.startsWith("on")) {
+        // 이벤트 핸들러 제거
+        const eventType = key.slice(2).toLowerCase();
+        dom.removeEventListener(eventType, value);
+      } else if (key === "className") {
+        // className 제거
+        dom.className = "";
+      } else if (key === "style") {
+        // style 제거
+        dom.style.cssText = "";
+      } else {
+        // 일반 속성 제거
+        dom.removeAttribute(key);
+      }
+    }
+  }
+
+  // 2. 새 props 적용
+  for (const [key, value] of Object.entries(nextProps)) {
+    if (key === "children") {
+      continue;
+    }
+
+    const prevValue = prevProps[key];
+
+    // 값이 같으면 건너뛰기 (최적화)
+    if (Object.is(prevValue, value)) {
+      continue;
+    }
+
+    // 이벤트 핸들러 교체 (이전 이벤트 핸들러 제거, 새 이벤트 핸들러 추가)
+    if (key.startsWith("on")) {
+      const eventType = key.slice(2).toLowerCase();
+      if (prevValue) {
+        dom.removeEventListener(eventType, prevValue);
+      }
+      dom.addEventListener(eventType, value);
+      continue;
+    }
+
+    // className 업데이트 (이전 className 제거, 새 className 설정)
+    if (key === "className") {
+      dom.className = value || "";
+      continue;
+    }
+
+    // style 업데이트 (이전 스타일 제거, 새 스타일 설정)
+    if (key === "style" && typeof value === "object" && value !== null) {
+      // 이전 스타일 제거
+      if (prevValue && typeof prevValue === "object") {
+        for (const styleKey of Object.keys(prevValue)) {
+          if (!(styleKey in value)) {
+            (dom.style as any)[styleKey] = "";
+          }
+        }
+      }
+      for (const [styleKey, styleValue] of Object.entries(value)) {
+        (dom.style as any)[styleKey] = styleValue;
+      }
+      continue;
+    }
+
+    // 일반 속성 업데이트 (이전 속성 제거, 새 속성 설정)
+    if (value != null) {
+      dom.setAttribute(key, String(value));
+    } else {
+      dom.removeAttribute(key);
+    }
+  }
 };
 
 /**
  * 주어진 인스턴스에서 실제 DOM 노드(들)를 재귀적으로 찾아 배열로 반환합니다.
  * Fragment나 컴포넌트 인스턴스는 여러 개의 DOM 노드를 가질 수 있습니다.
  */
-export const getDomNodes = (_instance: Instance | null): (HTMLElement | Text)[] => {
-  // 여기를 구현하세요.
-  return [];
+export const getDomNodes = (instance: Instance | null): (HTMLElement | Text)[] => {
+  // instance가 null이면 빈 배열 반환
+  if (!instance) return [];
+
+  // instance.dom이 있으면 배열에 추가하고 반환
+  if (instance.dom) {
+    return [instance.dom];
+  }
+
+  // instance.children의 각 요소에 대해 getDomNodes를 재귀적으로 호출하고 결과를 평탄화하여 반환
+  return instance.children.flatMap(getDomNodes);
 };
 
 /**
  * 주어진 인스턴스에서 첫 번째 실제 DOM 노드를 찾습니다.
  */
-export const getFirstDom = (_instance: Instance | null): HTMLElement | Text | null => {
-  // 여기를 구현하세요.
+export const getFirstDom = (instance: Instance | null): HTMLElement | Text | null => {
+  // instance가 null이면 null 반환
+  if (!instance) return null;
+
+  // instance.dom이 있으면 반환
+  if (instance.dom) {
+    return instance.dom;
+  }
+
+  // 자식들을 순회하면서 첫 번째 DOM 찾기 (재귀적으로 호출 후 찾으면 즉시 반환)
+  for (const child of instance.children) {
+    const dom = getFirstDom(child);
+    if (dom) return dom;
+  }
+
   return null;
 };
 
