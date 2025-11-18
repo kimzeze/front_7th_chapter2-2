@@ -143,11 +143,11 @@
 
 ### Step 1.3: deepEquals 구현
 
-- [ ] **파일 열기:** `packages/react/src/utils/equals.ts` (이미 열려있음)
+- [x] **파일 열기:** `packages/react/src/utils/equals.ts` (이미 열려있음)
 
-- [ ] **생각하기:** "중첩된 객체도 재귀적으로 비교해야 해. shallowEquals의 재귀 버전이네"
+- [x] **생각하기:** "중첩된 객체도 재귀적으로 비교해야 해. shallowEquals의 재귀 버전이네"
 
-- [ ] **코드 수정 (deepEquals 부분):**
+- [x] **코드 수정 (deepEquals 부분):**
 
   ```typescript
   export function deepEquals(a: unknown, b: unknown): boolean {
@@ -222,11 +222,11 @@
 
 ### Step 1.4: createElement 구현
 
-- [ ] **파일 열기:** `packages/react/src/core/elements.ts`
+- [x] **파일 열기:** `packages/react/src/core/elements.ts`
 
-- [ ] **생각하기:** "JSX가 createElement로 변환돼. type, props, children을 받아서 VNode 객체로 만들어야 해"
+- [x] **생각하기:** "JSX가 createElement로 변환돼. type, props, children을 받아서 VNode 객체로 만들어야 해"
 
-- [ ] **코드 작성:**
+- [x] **코드 작성:**
 
   ```typescript
   import { isEmptyValue } from "../utils/validators";
@@ -288,7 +288,7 @@
 
 ### Step 1.5: Phase 1 완료 체크
 
-- [ ] **전체 테스트 실행:**
+- [x] **전체 테스트 실행:**
 
   ```bash
   pnpm test basic.equals.test.tsx
