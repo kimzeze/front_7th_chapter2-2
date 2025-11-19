@@ -7,8 +7,16 @@ import { HookTypes } from "./constants";
 /**
  * 사용되지 않는 컴포넌트의 훅 상태와 이펙트 클린업 함수를 정리합니다.
  */
-export const cleanupUnusedHooks = () => {
-  // 여기를 구현하세요.
+export const cleanupUnusedHooks = (): void => {
+  const { hooks } = context;
+  const paths = Array.from(hooks.state.keys());
+
+  for (const path of paths) {
+    if (!hooks.visited.has(path)) {
+      hooks.state.delete(path);
+      hooks.cursor.delete(path);
+    }
+  }
 };
 
 /**
