@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Instance } from "./types";
 
 /**
@@ -150,10 +149,10 @@ export const getDomNodes = (instance: Instance | null): (HTMLElement | Text)[] =
  * 주어진 인스턴스에서 첫 번째 실제 DOM 노드를 찾습니다.
  */
 export const getFirstDom = (instance: Instance | null): HTMLElement | Text | null => {
-  // instance가 null이면 null 반환
+  // instance가 빈값이면 아무것도 안함
   if (!instance) return null;
 
-  // instance.dom이 있으면 반환
+  // instance.dom이 있으면 그걸 반환
   if (instance.dom) {
     return instance.dom;
   }
@@ -170,8 +169,15 @@ export const getFirstDom = (instance: Instance | null): HTMLElement | Text | nul
 /**
  * 자식 인스턴스들로부터 첫 번째 실제 DOM 노드를 찾습니다.
  */
-export const getFirstDomFromChildren = (_children: (Instance | null)[]): HTMLElement | Text | null => {
-  // 여기를 구현하세요.
+export const getFirstDomFromChildren = (children: (Instance | null)[]): HTMLElement | Text | null => {
+  // children의 각 자식을 순회하면서 첫 번째 DOM 찾기 (재귀적으로 호출 후 찾으면 즉시 반환)
+  for (const child of children) {
+    const dom = getFirstDom(child);
+    // DOM을 찾으면 즉시 반환 (조기 종료)
+    if (dom) return dom;
+  }
+
+  // 모든 자식을 확인했는데 못 찾으면 null
   return null;
 };
 
@@ -180,16 +186,35 @@ export const getFirstDomFromChildren = (_children: (Instance | null)[]): HTMLEle
  * anchor 노드가 주어지면 그 앞에 삽입하여 순서를 보장합니다.
  */
 export const insertInstance = (
-  _parentDom: HTMLElement,
-  _instance: Instance | null,
-  _anchor: HTMLElement | Text | null = null,
+  parentDom: HTMLElement,
+  instance: Instance | null,
+  anchor: HTMLElement | Text | null = null,
 ): void => {
-  // 여기를 구현하세요.
+  // instance가 빈값이면 아무것도 안함
+  if (!instance) return;
+
+  // instance의 모든 DOM 노드를 찾아서 배열로 반환
+  const nodes = getDomNodes(instance);
+  // anchor가 있으면 그 앞에 삽입, 없으면 마지막에 삽입
+  for (const node of nodes) {
+    if (anchor) parentDom.insertBefore(node, anchor);
+    else parentDom.appendChild(node);
+  }
 };
 
 /**
  * 부모 DOM에서 인스턴스에 해당하는 모든 DOM 노드를 제거합니다.
  */
-export const removeInstance = (_parentDom: HTMLElement, _instance: Instance | null): void => {
-  // 여기를 구현하세요.
+export const removeInstance = (parentDom: HTMLElement, instance: Instance | null): void => {
+  // instance가 빈값이면 아무것도 안함
+  if (!instance) return;
+
+  // instance의 모든 DOM 노드를 찾아서 배열로 반환
+  const nodes = getDomNodes(instance);
+  // nodes의 각 요소에 대해 부모 DOM에서 제거
+  for (const node of nodes) {
+    if (node.parentNode === parentDom) {
+      parentDom.removeChild(node);
+    }
+  }
 };
