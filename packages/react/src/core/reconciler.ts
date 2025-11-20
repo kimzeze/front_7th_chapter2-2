@@ -203,16 +203,31 @@ const update = (parentDom: HTMLElement, node: VNode, instance: Instance, path: s
 
 /**
  * unmount: 제거하기
- * 1. cleanup 함수 실행 (나중에 Effect Hook 구현 후 추가)
+ * 1. cleanup 함수 실행
  * 2. 자식들 먼저 unmount (재귀)
  * 3. DOM 제거
  * 4. Hook 정리
  */
 const unmount = (parentDom: HTMLElement, instance: Instance): void => {
-  // 1. cleanup 함수 실행
-  // if (instance.cleanup) {
-  //   instance.cleanup();
-  // }
+  // 1. cleanup 함수를 effect queue에 추가 (비동기 실행)
+  if (instance.path) {
+    const hookList = context.hooks.state.get(instance.path);
+    if (hookList) {
+      // 모든 Hook의 cleanup 함수를 queue에 추가
+      for (let i = 0; i < hookList.length; i++) {
+        const hook = hookList[i];
+        if (hook.cleanup) {
+          // cleanup을 래핑하여 실행 후 제거
+          const cleanup = hook.cleanup;
+          context.effects.queue.push(() => {
+            cleanup();
+          });
+          // cleanup 실행 전 미리 제거 (중복 방지)
+          hook.cleanup = undefined;
+        }
+      }
+    }
+  }
 
   // 2. 자식들 먼저 unmount (재귀)
   for (const child of instance.children) {
