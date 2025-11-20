@@ -32,8 +32,8 @@ export const render = (): void => {
   // 5. 사용되지 않은 훅들을 정리
   cleanupUnusedHooks();
 
-  // 6. 대기 중인 effect 실행
-  flushEffects();
+  // 6. 대기 중인 effect를 비동기로 실행 (microtask queue)
+  queueMicrotask(() => flushEffects());
 };
 
 /**
