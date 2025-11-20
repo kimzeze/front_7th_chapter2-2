@@ -3,6 +3,10 @@ import { context } from "./context";
 import { enqueueRender } from "./render";
 import { HookTypes } from "./constants";
 
+// import { withEnqueue } from "../utils";
+// import { EffectHook } from "./types";
+// import { HookTypes } from "./constants";
+
 /**
  * 사용되지 않는 컴포넌트의 훅 상태와 이펙트 클린업 함수를 정리합니다.
  */

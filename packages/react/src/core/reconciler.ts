@@ -4,6 +4,7 @@ import { ComponentType, Instance, VNode } from "./types";
 import {
   getFirstDom,
   getFirstDomFromChildren,
+  getDomNodes,
   insertInstance,
   removeInstance,
   setDomProps,
@@ -260,30 +261,113 @@ const reconcileChildren = (
   path: string,
 ): (Instance | null)[] => {
   const childInstances: (Instance | null)[] = [];
-  const maxLength = Math.max(newChildren.length, oldChildren.length);
 
-  for (let i = 0; i < maxLength; i++) {
+  // key를 가진 old instance들을 Map으로 관리
+  const oldKeyedInstances = new Map<string, Instance>();
+  const oldInstancesByIndex: (Instance | null)[] = [];
+
+  // oldChildren을 key와 인덱스로 분류
+  for (let i = 0; i < oldChildren.length; i++) {
+    const oldChild = oldChildren[i];
+    if (oldChild && oldChild.node.key) {
+      oldKeyedInstances.set(oldChild.node.key, oldChild);
+    }
+    oldInstancesByIndex.push(oldChild);
+  }
+
+  // 사용된 old instance 추적
+  const usedInstances = new Set<Instance>();
+
+  // newChildren을 순회하면서 reconcile
+  for (let i = 0; i < newChildren.length; i++) {
     const newChild = newChildren[i];
-    const oldChild = oldChildren[i] || null;
 
-    // Case 1: 둘 다 있음 (update or replace)
-    // Case 2: newChild만 있음 (mount)
-    if (newChild && !isEmptyValue(newChild)) {
-      const childPath = createChildPath(path, newChild.key, i, newChild.type);
+    if (!newChild || isEmptyValue(newChild)) {
+      continue;
+    }
 
-      const childInstance = reconcile(
-        container,
-        oldChild, // 이전 것 (없으면 null → mount)
-        newChild, // 새것
-        childPath,
-      );
+    // key가 있으면 key로 매칭, 없으면 인덱스와 타입으로 매칭
+    let oldChild: Instance | null = null;
 
+    if (newChild.key) {
+      // key로 매칭
+      const keyedInstance = oldKeyedInstances.get(newChild.key);
+      if (keyedInstance) {
+        oldChild = keyedInstance;
+        usedInstances.add(keyedInstance);
+      }
+    } else {
+      // key가 없으면 인덱스로 매칭 시도
+      const candidateByIndex = oldInstancesByIndex[i] || null;
+
+      if (candidateByIndex && candidateByIndex.node.type === newChild.type) {
+        // 인덱스의 후보가 타입도 일치하면 사용
+        oldChild = candidateByIndex;
+        usedInstances.add(candidateByIndex);
+      } else {
+        // 타입이 안 맞으면 나머지 oldChildren에서 같은 타입 찾기
+        for (let j = 0; j < oldChildren.length; j++) {
+          const candidate = oldChildren[j];
+          if (
+            candidate &&
+            !usedInstances.has(candidate) &&
+            !candidate.node.key && // key 없는 것만
+            candidate.node.type === newChild.type
+          ) {
+            oldChild = candidate;
+            usedInstances.add(candidate);
+            break;
+          }
+        }
+      }
+    }
+
+    const childPath = createChildPath(path, newChild.key, i, newChild.type);
+
+    const childInstance = reconcile(
+      container,
+      oldChild, // 이전 것 (key로 찾았거나 인덱스로 찾음)
+      newChild, // 새것
+      childPath,
+    );
+
+    if (childInstance) {
       childInstances.push(childInstance);
     }
-    // Case 3: oldChild만 있음 (unmount)
-    else if (oldChild) {
+  }
+
+  // DOM 순서 재배치 (key가 있는 경우)
+  // 이전 instance의 마지막 DOM을 추적하여 정확한 위치 확인
+  let lastDom: Node | null = null;
+
+  for (let i = 0; i < childInstances.length; i++) {
+    const instance = childInstances[i];
+    if (!instance) continue;
+
+    const domNodes = getDomNodes(instance);
+    for (const domNode of domNodes) {
+      if (domNode.parentNode === container) {
+        // 올바른 위치 확인
+        if (lastDom) {
+          // lastDom 바로 다음에 있어야 함
+          if (lastDom.nextSibling !== domNode) {
+            container.insertBefore(domNode, lastDom.nextSibling);
+          }
+        } else {
+          // 첫 번째 자식이어야 함
+          if (container.firstChild !== domNode) {
+            container.insertBefore(domNode, container.firstChild);
+          }
+        }
+        lastDom = domNode;
+      }
+    }
+  }
+
+  // 사용되지 않은 old instance들을 unmount
+  for (const oldChild of oldChildren) {
+    if (oldChild && !usedInstances.has(oldChild)) {
       reconcile(container, oldChild, null, "");
-      // unmount니까 childInstances에 안 넣음!
     }
   }
 
@@ -365,10 +449,19 @@ const mountComponent = (parentDom: HTMLElement, node: VNode, path: string): Inst
  * // → reconcile로 DOM 업데이트
  */
 const updateComponent = (parentDom: HTMLElement, node: VNode, instance: Instance, path: string): Instance => {
-  // 1. Hook 컨텍스트 시작
+  //  Hook 컨텍스트 시작 (path 변경사항 관계없이)
   context.hooks.componentStack.push(path);
   context.hooks.cursor.set(path, 0); // Hook 카운터 다시 0부터
   context.hooks.visited.add(path);
+
+  // path가 변경되었으면 hook state를 새 path로 이전
+  if (instance.path !== path) {
+    const oldHookList = context.hooks.state.get(instance.path);
+    if (oldHookList) {
+      context.hooks.state.set(path, oldHookList);
+      context.hooks.state.delete(instance.path);
+    }
+  }
 
   try {
     // 2. 컴포넌트 함수 다시 실행
@@ -381,11 +474,12 @@ const updateComponent = (parentDom: HTMLElement, node: VNode, instance: Instance
     const oldChild = instance.children[0];
     const newChild = reconcile(parentDom, oldChild, renderedVNode, path);
 
-    // 4. 업데이트된 인스턴스 반환
+    // 4. 업데이트된 인스턴스 반환 (새 path 포함)
     return {
       ...instance,
       node: node,
       children: [newChild],
+      path: path, // path 업데이트
     };
   } finally {
     // 5. Hook 컨텍스트 정리
