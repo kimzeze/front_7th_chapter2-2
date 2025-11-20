@@ -2,6 +2,24 @@
 import { Instance } from "./types";
 
 /**
+ * HTML boolean 속성 목록
+ * 이 속성들은 존재 여부만으로 true/false가 결정됨
+ */
+const BOOLEAN_PROPS = new Set([
+  "disabled",
+  "checked",
+  "readOnly",
+  "selected",
+  "required",
+  "hidden",
+  "autoFocus",
+  "autoPlay",
+  "controls",
+  "loop",
+  "muted",
+]);
+
+/**
  * DOM 요소에 속성(props)을 설정합니다.
  * 이벤트 핸들러, 스타일, className 등 다양한 속성을 처리해야 합니다.
  */
@@ -33,7 +51,17 @@ export const setDomProps = (dom: HTMLElement, props: Record<string, any>): void 
       continue;
     }
 
-    // 4. 일반 속성
+    // 4. boolean 속성 (disabled, checked, readOnly 등)
+    if (BOOLEAN_PROPS.has(key)) {
+      if (value) {
+        dom.setAttribute(key, "");
+      } else {
+        dom.removeAttribute(key);
+      }
+      continue;
+    }
+
+    // 5. 일반 속성
     if (value != null) {
       dom.setAttribute(key, String(value));
     }
@@ -115,6 +143,16 @@ export const updateDomProps = (
       }
       for (const [styleKey, styleValue] of Object.entries(value)) {
         (dom.style as any)[styleKey] = styleValue;
+      }
+      continue;
+    }
+
+    // boolean 속성 업데이트
+    if (BOOLEAN_PROPS.has(key)) {
+      if (value) {
+        dom.setAttribute(key, "");
+      } else {
+        dom.removeAttribute(key);
       }
       continue;
     }
