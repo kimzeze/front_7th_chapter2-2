@@ -1358,11 +1358,11 @@
 
 ### Step 5.6: mountComponent 구현
 
-- [ ] **파일:** `packages/react/src/core/reconciler.ts`
+- [x] **파일:** `packages/react/src/core/reconciler.ts`
 
-- [ ] **생각하기:** "컴포넌트 경로 생성, Hook 컨텍스트 설정, 함수 실행, 결과 렌더링"
+- [x] **생각하기:** "컴포넌트 경로 생성, Hook 컨텍스트 설정, 함수 실행, 결과 렌더링"
 
-- [ ] **mountComponent 구현:**
+- [x] **mountComponent 구현:**
 
   ```typescript
   let componentCounter = 0; // 컴포넌트 고유 ID
@@ -1402,9 +1402,9 @@
   }
   ```
 
-- [ ] **저장**
+- [x] **저장**
 
-- [ ] **커밋:**
+- [x] **커밋:**
   ```bash
   git add packages/react/src/core/reconciler.ts
   git commit -m "feat: implement mountComponent with hook context"
@@ -1414,11 +1414,11 @@
 
 ### Step 5.7: updateComponent 구현
 
-- [ ] **파일:** `packages/react/src/core/reconciler.ts`
+- [x] **파일:** `packages/react/src/core/reconciler.ts`
 
-- [ ] **생각하기:** "기존 경로 유지하면서 컴포넌트 재실행"
+- [x] **생각하기:** "기존 경로 유지하면서 컴포넌트 재실행"
 
-- [ ] **updateComponent 구현:**
+- [x] **updateComponent 구현:**
 
   ```typescript
   function updateComponent(container: HTMLElement, newNode: VNode, oldInstance: Instance): Instance {
@@ -1469,14 +1469,14 @@
 
 ### Step 5.8: Phase 5 완료 체크
 
-- [ ] **Fragment import 추가:**
+- [x] **Fragment import 추가:**
 
   ```typescript
   // reconciler.ts 맨 위에
   import { Fragment } from "./elements";
   ```
 
-- [ ] **Fragment 비교 수정:**
+- [x] **Fragment 비교 수정:**
 
   ```typescript
   // Symbol.for("Fragment") 대신
@@ -1485,14 +1485,14 @@
   }
   ```
 
-- [ ] **전체 테스트:**
+- [x] **전체 테스트:**
 
   ```bash
   pnpm run test:basic
   # 아직 Hook이 없어서 일부 실패하지만 렌더링 관련은 통과!
   ```
 
-- [ ] **커밋:**
+- [x] **커밋:**
   ```bash
   git add .
   git commit -m "chore: complete Phase 5 - Reconciliation"

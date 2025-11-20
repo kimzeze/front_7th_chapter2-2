@@ -9,7 +9,12 @@ import { render } from "./render";
  * @param container - VNode가 렌더링될 DOM 컨테이너
  */
 export const setup = (rootNode: VNode | null, container: HTMLElement): void => {
-  // 1. 컨테이너 유효성을 검사합니다.
+  // 1. 루트 노드 유효성을 검사합니다.
+  if (!rootNode) {
+    throw new Error("루트 노드가 제공되어야 합니다.");
+  }
+
+  // 2. 컨테이너 유효성을 검사합니다.
   if (!container) {
     throw new Error("컨테이너가 제공되어야 합니다.");
   }
@@ -18,14 +23,14 @@ export const setup = (rootNode: VNode | null, container: HTMLElement): void => {
     throw new Error("컨테이너는 HTMLElement여야 합니다.");
   }
 
-  // 2. 루트 컨텍스트 업데이트 (instance는 유지!)
+  // 3. 루트 컨텍스트 업데이트 (instance는 유지!)
   const isFirstRender = !context.root.instance;
   const isNewContainer = context.root.container !== container;
 
   context.root.container = container;
   context.root.node = rootNode;
 
-  // 3. 컨테이너 초기화 및 Hook 관리
+  // 4. 컨테이너 초기화 및 Hook 관리
   if (isFirstRender || isNewContainer) {
     // 첫 렌더링이거나 새로운 컨테이너면 비우기
     container.innerHTML = "";
@@ -43,6 +48,6 @@ export const setup = (rootNode: VNode | null, container: HTMLElement): void => {
     context.hooks.visited.clear();
   }
 
-  // 4. 렌더링 실행 (reconcile이 알아서 mount/update 판단)
+  // 5. 렌더링 실행 (reconcile이 알아서 mount/update 판단)
   render();
 };
