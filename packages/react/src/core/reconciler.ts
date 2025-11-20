@@ -1,9 +1,19 @@
 import { context } from "./context";
 import { Fragment, NodeTypes, TEXT_ELEMENT } from "./constants";
-import { Instance, VNode } from "./types";
-import { setDomProps } from "./dom";
+import { ComponentType, Instance, VNode } from "./types";
+import {
+  getFirstDom,
+  getFirstDomFromChildren,
+  insertInstance,
+  removeInstance,
+  setDomProps,
+  updateDomProps,
+} from "./dom";
 import { createChildPath } from "./elements";
 import { isEmptyValue } from "../utils";
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _ = { getFirstDom, getFirstDomFromChildren, insertInstance, removeInstance };
 
 /**
  * 이전 인스턴스와 새로운 VNode를 비교하여 DOM을 업데이트하는 재조정 과정을 수행합니다.
@@ -104,7 +114,7 @@ const mount = (parentDom: HTMLElement, node: VNode, path: string): Instance => {
   }
 
   if (typeof node.type === "function") {
-    // return mountComponent(parentDom, node, path);
+    return mountComponent(parentDom, node, path);
   }
 
   // 1. 일반 DOM 요소 생성
@@ -141,10 +151,54 @@ const mount = (parentDom: HTMLElement, node: VNode, path: string): Instance => {
  * 1. 속성 비교 & 업데이트
  * 2. 자식들 reconcile (재귀!)
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 const update = (parentDom: HTMLElement, node: VNode, instance: Instance, path: string): Instance => {
-  // TODO: 구현 필요
-  return instance;
+  // 1. TEXT_ELEMENT
+  if (node.type === TEXT_ELEMENT) {
+    const textNode = instance.dom as Text;
+    const oldValue = instance.node.props.nodeValue;
+    const newValue = node.props.nodeValue;
+
+    if (oldValue !== newValue) {
+      textNode.nodeValue = newValue || "";
+    }
+
+    return {
+      ...instance,
+      node: node,
+    };
+  }
+
+  // 2. Fragment
+  if (node.type === Fragment) {
+    const childInstances = reconcileChildren(parentDom, node.props.children || [], instance.children, path);
+
+    return {
+      ...instance,
+      node: node,
+      children: childInstances,
+    };
+  }
+
+  // 3. Component
+  if (typeof node.type === "function") {
+    return updateComponent(parentDom, node, instance, path);
+  }
+
+  // 4. 일반 DOM
+  const dom = instance.dom as HTMLElement;
+
+  // Props 업데이트
+  updateDomProps(dom, instance.node.props, node.props);
+
+  // Children reconcile
+  const childInstances = reconcileChildren(dom, node.props.children || [], instance.children, path);
+
+  return {
+    ...instance,
+    node: node,
+    children: childInstances,
+  };
 };
 
 /**
@@ -181,5 +235,145 @@ const unmount = (parentDom: HTMLElement, instance: Instance): void => {
   if (instance.path) {
     context.hooks.state.delete(instance.path);
     context.hooks.cursor.delete(instance.path);
+  }
+};
+
+const reconcileChildren = (
+  container: HTMLElement,
+  newChildren: VNode[],
+  oldChildren: (Instance | null)[],
+  path: string,
+): (Instance | null)[] => {
+  const childInstances: (Instance | null)[] = [];
+  const maxLength = Math.max(newChildren.length, oldChildren.length);
+
+  for (let i = 0; i < maxLength; i++) {
+    const newChild = newChildren[i];
+    const oldChild = oldChildren[i] || null;
+
+    // Case 1: 둘 다 있음 (update or replace)
+    // Case 2: newChild만 있음 (mount)
+    if (newChild && !isEmptyValue(newChild)) {
+      const childPath = createChildPath(path, newChild.key, i, newChild.type);
+
+      const childInstance = reconcile(
+        container,
+        oldChild, // 이전 것 (없으면 null → mount)
+        newChild, // 새것
+        childPath,
+      );
+
+      childInstances.push(childInstance);
+    }
+    // Case 3: oldChild만 있음 (unmount)
+    else if (oldChild) {
+      reconcile(container, oldChild, null, "");
+      // unmount니까 childInstances에 안 넣음!
+    }
+  }
+
+  return childInstances;
+};
+
+/**
+ * mountComponent: 컴포넌트를 처음 마운트합니다.
+ *
+ * 🎯 역할: 함수 컴포넌트를 실행해서 실제 DOM으로 만들기
+ *
+ * 📦 과정:
+ * 1. Hook 컨텍스트 설정 (이 컴포넌트의 useState들을 추적하기 위해)
+ * 2. 컴포넌트 함수 실행 (설계도 → 실제 VNode)
+ * 3. 나온 결과를 mount (VNode → DOM)
+ * 4. Hook 컨텍스트 정리
+ *
+ * @example
+ * function Counter() {
+ *   const [count] = useState(0);
+ *   return <div>{count}</div>;
+ * }
+ *
+ * mountComponent(parentDom, <Counter />, "root.c0")
+ * → Counter 함수 실행
+ * → <div>0</div> VNode 얻음
+ * → 실제 DOM으로 만듦
+ */
+const mountComponent = (parentDom: HTMLElement, node: VNode, path: string): Instance => {
+  // 1. Hook 컨텍스트 시작
+  //    "지금부터 이 컴포넌트의 Hook들이 실행됩니다!" 라고 알림
+  context.hooks.componentStack.push(path);
+  context.hooks.cursor.set(path, 0); // Hook 카운터 초기화
+  context.hooks.visited.add(path); // 방문 기록
+
+  try {
+    // 2. 컴포넌트 함수 실행
+    //    예: Counter({ count: 5 }) → <div>5</div>
+    const Component = node.type as ComponentType;
+    const renderedVNode = Component(node.props) as VNode;
+
+    // 3. 실행 결과를 실제 DOM으로 mount
+    //    <div>5</div> → 진짜 DOM 요소
+    const childInstance = mount(parentDom, renderedVNode, path);
+
+    // 4. 컴포넌트 인스턴스 반환
+    return {
+      kind: NodeTypes.COMPONENT,
+      dom: null, // 컴포넌트는 직접 DOM 없음 (자식이 가짐)
+      node: node,
+      children: [childInstance], // 실행 결과가 자식
+      key: node.key,
+      path: path,
+    };
+  } finally {
+    // 5. Hook 컨텍스트 정리
+    //    "이 컴포넌트 실행 끝!" 라고 알림
+    context.hooks.componentStack.pop();
+  }
+};
+
+/**
+ * updateComponent: 기존 컴포넌트를 업데이트합니다.
+ *
+ * 🎯 역할: 컴포넌트를 다시 실행해서 변경사항 반영하기
+ *
+ * 📦 과정:
+ * 1. Hook 컨텍스트 설정 (기존 state 유지하면서)
+ * 2. 컴포넌트 함수 다시 실행
+ * 3. 이전 결과와 새 결과를 reconcile
+ * 4. Hook 컨텍스트 정리
+ *
+ * @example
+ * // 이전: <div>0</div>
+ * // setState(1) 호출됨
+ * // updateComponent 실행
+ * // → Counter 함수 다시 실행
+ * // → <div>1</div> 얻음
+ * // → reconcile로 DOM 업데이트
+ */
+const updateComponent = (parentDom: HTMLElement, node: VNode, instance: Instance, path: string): Instance => {
+  // 1. Hook 컨텍스트 시작
+  context.hooks.componentStack.push(path);
+  context.hooks.cursor.set(path, 0); // Hook 카운터 다시 0부터
+  context.hooks.visited.add(path);
+
+  try {
+    // 2. 컴포넌트 함수 다시 실행
+    //    이번엔 업데이트된 state를 가지고 실행됨!
+    const Component = node.type as ComponentType;
+    const renderedVNode = Component(node.props) as VNode;
+
+    // 3. 이전 자식과 새 자식을 비교 (reconcile)
+    //    예: <div>0</div> vs <div>1</div> → 텍스트만 바꿈
+    const oldChild = instance.children[0];
+    const newChild = reconcile(parentDom, oldChild, renderedVNode, path);
+
+    // 4. 업데이트된 인스턴스 반환
+    return {
+      ...instance,
+      node: node,
+      children: [newChild],
+    };
+  } finally {
+    // 5. Hook 컨텍스트 정리
+    context.hooks.componentStack.pop();
   }
 };
