@@ -747,11 +747,11 @@
 
 ### Step 3.3: dom.ts - DOM 조작 헬퍼 함수들
 
-- [ ] **파일:** `packages/react/src/core/dom.ts` (이미 열려있음)
+- [x] **파일:** `packages/react/src/core/dom.ts` (이미 열려있음)
 
-- [ ] **생각하기:** "Instance에서 실제 DOM 노드 찾기, 삽입/제거 헬퍼 필요"
+- [x] **생각하기:** "Instance에서 실제 DOM 노드 찾기, 삽입/제거 헬퍼 필요"
 
-- [ ] **코드 추가:**
+- [x] **코드 추가:**
 
   ```typescript
   import type { Instance } from "./types";
@@ -866,11 +866,11 @@
 
 ### Step 4.1: enqueue.ts 구현
 
-- [ ] **파일 열기:** `packages/react/src/utils/enqueue.ts`
+- [x] **파일 열기:** `packages/react/src/utils/enqueue.ts`
 
-- [ ] **생각하기:** "마이크로태스크 큐를 사용해서 작업을 배치 처리"
+- [x] **생각하기:** "마이크로태스크 큐를 사용해서 작업을 배치 처리"
 
-- [ ] **코드 작성:**
+- [x] **코드 작성:**
 
   ```typescript
   // 대기 중인 함수들
@@ -926,9 +926,9 @@
 
 ### Step 4.2: render.ts 구현 (1차 - 기본 구조)
 
-- [ ] **파일 열기:** `packages/react/src/core/render.ts`
+- [x] **파일 열기:** `packages/react/src/core/render.ts`
 
-- [ ] **생각하기:** "렌더링의 핵심. reconcile 호출하고 effect 실행"
+- [x] **생각하기:** "렌더링의 핵심. reconcile 호출하고 effect 실행"
 
 - [ ] **코드 작성:**
 
@@ -1035,11 +1035,11 @@
 
 ### Step 5.1: reconciler.ts - 기본 구조 잡기
 
-- [ ] **파일 열기:** `packages/react/src/core/reconciler.ts`
+- [x] **파일 열기:** `packages/react/src/core/reconciler.ts`
 
-- [ ] **생각하기:** "mount, update, unmount 세 가지 케이스로 나눠서 생각"
+- [x] **생각하기:** "mount, update, unmount 세 가지 케이스로 나눠서 생각"
 
-- [ ] **코드 작성 (골격):**
+- [x] **코드 작성 (골격):**
 
   ```typescript
   import { context } from "./context";
@@ -1106,11 +1106,11 @@
 
 ### Step 5.2: mount 함수 - 텍스트 노드
 
-- [ ] **파일:** `packages/react/src/core/reconciler.ts` (이미 열려있음)
+- [x] **파일:** `packages/react/src/core/reconciler.ts` (이미 열려있음)
 
-- [ ] **생각하기:** "가장 간단한 텍스트 노드부터 구현"
+- [x] **생각하기:** "가장 간단한 텍스트 노드부터 구현"
 
-- [ ] **mount 함수 수정:**
+- [x] **mount 함수 수정:**
 
   ```typescript
   function mount(container: HTMLElement, vnode: VNode): Instance {
@@ -1188,11 +1188,11 @@
 
 ### Step 5.3: unmount 함수 구현
 
-- [ ] **파일:** `packages/react/src/core/reconciler.ts`
+- [x] **파일:** `packages/react/src/core/reconciler.ts`
 
-- [ ] **생각하기:** "DOM 제거하고, 자식들도 재귀적으로 unmount, cleanup 실행"
+- [x] **생각하기:** "DOM 제거하고, 자식들도 재귀적으로 unmount, cleanup 실행"
 
-- [ ] **unmount 함수 구현:**
+- [x] **unmount 함수 구현:**
 
   ```typescript
   function unmount(container: HTMLElement, instance: Instance): void {
@@ -1234,11 +1234,11 @@
 
 ### Step 5.4: update 함수 - 기본 케이스
 
-- [ ] **파일:** `packages/react/src/core/reconciler.ts`
+- [x] **파일:** `packages/react/src/core/reconciler.ts`
 
-- [ ] **생각하기:** "타입이 같을 때만 호출됨. props 업데이트하고 children reconcile"
+- [x] **생각하기:** "타입이 같을 때만 호출됨. props 업데이트하고 children reconcile"
 
-- [ ] **update 함수 구현:**
+- [x] **update 함수 구현:**
 
   ```typescript
   function update(container: HTMLElement, newNode: VNode, oldInstance: Instance): Instance {
@@ -1314,11 +1314,11 @@
 
 ### Step 5.5: reconcileChildren - 단순 버전
 
-- [ ] **파일:** `packages/react/src/core/reconciler.ts`
+- [x] **파일:** `packages/react/src/core/reconciler.ts`
 
-- [ ] **생각하기:** "일단 key 없는 버전부터. 인덱스 기반으로 비교"
+- [x] **생각하기:** "일단 key 없는 버전부터. 인덱스 기반으로 비교"
 
-- [ ] **reconcileChildren 구현 (1차):**
+- [x] **reconcileChildren 구현 (1차):**
 
   ```typescript
   function reconcileChildren(container: HTMLElement, newChildren: VNode[], oldChildren: Instance[]): Instance[] {
