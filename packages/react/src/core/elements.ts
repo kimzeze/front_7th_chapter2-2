@@ -64,11 +64,14 @@ export const createElement = (
   /* 3. VNode 객체 생성 및 반환 */
   return {
     type,
-    key: key !== null ? String(key) : null, // key는 문자열로 변환
-    props: {
-      ...props,
-      children, // children을 props에 포함
-    },
+    key: key ?? null, // key 타입 그대로 유지 (숫자면 숫자, 문자열이면 문자열)
+    props:
+      children.length > 0
+        ? {
+            ...props,
+            children, // children이 있을 때만 포함
+          }
+        : props, // children이 없으면 props만
   };
 };
 

@@ -1,7 +1,5 @@
 import { context } from "./context";
 import { VNode } from "./types";
-import { removeInstance } from "./dom";
-import { cleanupUnusedHooks } from "./hooks";
 import { render } from "./render";
 
 /**
@@ -20,17 +18,22 @@ export const setup = (rootNode: VNode | null, container: HTMLElement): void => {
     throw new Error("컨테이너는 HTMLElement여야 합니다.");
   }
 
-  // 2. 이전 렌더링 내용을 정리하고 컨테이너를 비웁니다.
-  if (context.root.instance) {
-    removeInstance(container, context.root.instance);
+  // 2. 루트 컨텍스트 업데이트 (instance는 유지!)
+  const isFirstRender = !context.root.instance;
+
+  context.root.container = container;
+  context.root.node = rootNode;
+  // context.root.instance는 그대로 유지 → reconcile이 알아서 update/mount 판단
+
+  // 3. 첫 렌더링이면 컨테이너를 비우고 Hook 초기화
+  if (isFirstRender) {
+    container.innerHTML = "";
+    context.hooks.clear();
+  } else {
+    // 재렌더링이면 visited만 초기화 (render 함수에서도 하지만 안전하게)
+    context.hooks.visited.clear();
   }
-  cleanupUnusedHooks();
-  container.innerHTML = "";
 
-  // 3. 루트 컨텍스트와 훅 컨텍스트를 리셋합니다.
-  context.root.reset({ container, node: rootNode });
-  context.hooks.clear();
-
-  // 4. 첫 렌더링을 실행합니다.
+  // 4. 렌더링 실행 (reconcile이 알아서 mount/update 판단)
   render();
 };
