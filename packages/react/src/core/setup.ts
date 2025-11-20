@@ -20,17 +20,26 @@ export const setup = (rootNode: VNode | null, container: HTMLElement): void => {
 
   // 2. 루트 컨텍스트 업데이트 (instance는 유지!)
   const isFirstRender = !context.root.instance;
+  const isNewContainer = context.root.container !== container;
 
   context.root.container = container;
   context.root.node = rootNode;
-  // context.root.instance는 그대로 유지 → reconcile이 알아서 update/mount 판단
 
-  // 3. 첫 렌더링이면 컨테이너를 비우고 Hook 초기화
-  if (isFirstRender) {
+  // 3. 컨테이너 초기화 및 Hook 관리
+  if (isFirstRender || isNewContainer) {
+    // 첫 렌더링이거나 새로운 컨테이너면 비우기
     container.innerHTML = "";
-    context.hooks.clear();
+
+    if (isFirstRender) {
+      // 첫 렌더링: 모든 Hook 초기화
+      context.hooks.clear();
+    } else if (isNewContainer) {
+      // 새 컨테이너: 이전 instance 초기화 (다른 컨테이너니까 처음부터)
+      context.root.instance = null;
+      context.hooks.clear();
+    }
   } else {
-    // 재렌더링이면 visited만 초기화 (render 함수에서도 하지만 안전하게)
+    // 같은 컨테이너 재렌더링: visited만 초기화
     context.hooks.visited.clear();
   }
 
