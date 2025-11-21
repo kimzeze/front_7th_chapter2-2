@@ -1,4 +1,4 @@
-import { useState } from "../core/hooks";
+import { useState } from "../core";
 
 /**
  * 리렌더링되어도 변경되지 않는 참조(reference) 객체를 반환합니다.
@@ -8,6 +8,7 @@ import { useState } from "../core/hooks";
  * @returns `{ current: T }` 형태의 ref 객체
  */
 export const useRef = <T>(initialValue: T): { current: T } => {
-  const [ref] = useState(() => ({ current: initialValue }));
+  // useState를 사용하여 ref 객체를 한 번만 생성하도록 해야 합니다.
+  const [ref] = useState<{ current: T }>(() => ({ current: initialValue }));
   return ref;
 };

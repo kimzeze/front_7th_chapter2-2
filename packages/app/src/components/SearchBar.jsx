@@ -99,8 +99,8 @@ const handleSubCategoryClick = async (e) => {
   }
 };
 
-export function SearchBar({ searchQuery = "", limit = 20, sort = "price_asc", category = {}, categories = null }) {
-  const categoryList = categories && Object.keys(categories).length > 0 ? Object.keys(categories) : [];
+export function SearchBar({ searchQuery = "", limit = 20, sort = "price_asc", category = {}, categories = {} }) {
+  const categoryList = Object.keys(categories).length > 0 ? Object.keys(categories) : [];
   const limitOptions = OPTION_LIMITS.map((value) => (
     <option key={value} value={value} selected={Number(limit) === value}>
       {value}개

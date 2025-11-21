@@ -126,7 +126,8 @@ const mount = (parentDom: HTMLElement, node: VNode, path: string): Instance => {
 
   // 3. 자식들 마운트
   const childInstances: (Instance | null)[] = [];
-  for (const child of node.props.children || []) {
+  const children = node.props?.children || [];
+  for (const child of children) {
     if (!isEmptyValue(child)) {
       const childPath = createChildPath(path, child.key, childInstances.length, child.type);
       const childInstance = mount(dom, child, childPath);

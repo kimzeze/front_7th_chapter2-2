@@ -49,8 +49,8 @@ export const useState = <T>(initialValue: T | (() => T)): [T, (nextValue: T | ((
   const hookList = hooks.currentHooks;
 
   /* 2. 첫 렌더링인가 VS 이미 렌더링 된 상태인가 판단하기 */
-  /* 2-1. 이 위치에 훅이 없으면 처음 실행된 것이므로 초기값 설정 */
-  if (hookList[cursor] === undefined) {
+  /* 2-1. 이 위치에 훅이 없거나 잘못된 타입이면 초기값 설정 */
+  if (hookList[cursor] === undefined || !("value" in hookList[cursor])) {
     /* 2-2. 초기값이 함수면 실행하고, 아니면 그대로 설정 */
     const value = typeof initialValue === "function" ? (initialValue as () => T)() : initialValue;
 

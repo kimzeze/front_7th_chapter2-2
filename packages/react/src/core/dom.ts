@@ -24,6 +24,11 @@ const BOOLEAN_PROPS = new Set([
  * 이벤트 핸들러, 스타일, className 등 다양한 속성을 처리해야 합니다.
  */
 export const setDomProps = (dom: HTMLElement, props: Record<string, any>): void => {
+  // props가 null이나 undefined면 아무것도 하지 않음
+  if (!props) {
+    return;
+  }
+
   // children은 별도 처리
   for (const [key, value] of Object.entries(props)) {
     if (key === "children") {

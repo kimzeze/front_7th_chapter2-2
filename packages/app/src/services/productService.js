@@ -8,7 +8,6 @@ export const loadProductsAndCategories = async () => {
     type: PRODUCT_ACTIONS.SETUP,
     payload: {
       ...initialProductState,
-      categories: {}, // 카테고리를 명시적으로 비워서 로딩 상태 표시
       loading: true,
       status: "pending",
     },
