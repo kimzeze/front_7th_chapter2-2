@@ -247,8 +247,11 @@ const unmount = (parentDom: HTMLElement, instance: Instance): void => {
     }
   }
 
-  // 4. Hook 정리 (메모리 해제)
-  if (instance.path) {
+  // 4. Hook 정리 (visited 체크)
+  // migration된 컴포넌트의 hookList를 보호하기 위해 visited 체크
+  // 예: Item(path=.c3) unmount 시, Footer가 .c3로 migration했다면
+  //     visited.has('.c3')가 true이므로 삭제하지 않음
+  if (instance.path && !context.hooks.visited.has(instance.path)) {
     context.hooks.state.delete(instance.path);
     context.hooks.cursor.delete(instance.path);
   }
@@ -278,7 +281,14 @@ const reconcileChildren = (
   // 사용된 old instance 추적
   const usedInstances = new Set<Instance>();
 
-  // newChildren을 순회하면서 reconcile
+  // 첫 번째 패스: 매칭을 완료하고 migration 정보 수집
+  const matchedPairs: Array<{
+    oldChild: Instance | null;
+    newChild: VNode;
+    childPath: string;
+    index: number;
+  }> = [];
+
   for (let i = 0; i < newChildren.length; i++) {
     const newChild = newChildren[i];
 
@@ -323,13 +333,30 @@ const reconcileChildren = (
     }
 
     const childPath = createChildPath(path, newChild.key, i, newChild.type);
+    matchedPairs.push({ oldChild, newChild, childPath, index: i });
+  }
 
-    const childInstance = reconcile(
-      container,
-      oldChild, // 이전 것 (key로 찾았거나 인덱스로 찾음)
-      newChild, // 새것
-      childPath,
-    );
+  // Hook state migration을 역순으로 수행 (path 충돌 방지)
+  // 예: Footer(root.c0.c3 → root.c0.c5)를 Item(2)(root.c0.c3) mount 전에 처리
+  for (let i = matchedPairs.length - 1; i >= 0; i--) {
+    const { oldChild, childPath } = matchedPairs[i];
+
+    if (oldChild && oldChild.path !== childPath && oldChild.kind === NodeTypes.COMPONENT) {
+      const oldHookList = context.hooks.state.get(oldChild.path);
+      if (oldHookList) {
+        context.hooks.state.set(childPath, oldHookList);
+        context.hooks.state.delete(oldChild.path);
+        // oldChild.path 업데이트 (reconcile에서 사용하므로)
+        oldChild.path = childPath;
+      }
+      // cursor도 삭제 (새 path에서는 0부터 시작)
+      context.hooks.cursor.delete(oldChild.path);
+    }
+  }
+
+  // 두 번째 패스: reconcile 수행
+  for (const { oldChild, newChild, childPath } of matchedPairs) {
+    const childInstance = reconcile(container, oldChild, newChild, childPath);
 
     if (childInstance) {
       childInstances.push(childInstance);
@@ -449,15 +476,17 @@ const mountComponent = (parentDom: HTMLElement, node: VNode, path: string): Inst
  * // → reconcile로 DOM 업데이트
  */
 const updateComponent = (parentDom: HTMLElement, node: VNode, instance: Instance, path: string): Instance => {
-  //  Hook 컨텍스트 시작 (path 변경사항 관계없이)
+  //  Hook 컨텍스트 시작
   context.hooks.componentStack.push(path);
   context.hooks.cursor.set(path, 0); // Hook 카운터 다시 0부터
   context.hooks.visited.add(path);
 
-  // path가 변경되었으면 hook state를 새 path로 이전
+  // path가 변경되었고, 아직 migration 안 됐으면 hook state 이전
+  // (reconcileChildren에서 미리 migration했을 수 있음)
   if (instance.path !== path) {
     const oldHookList = context.hooks.state.get(instance.path);
     if (oldHookList) {
+      // 이전 path에 아직 hookList가 있으면 migration
       context.hooks.state.set(path, oldHookList);
       context.hooks.state.delete(instance.path);
     }
