@@ -1,10 +1,9 @@
 name: Deploy to GitHub Pages
 
 on:
-  push:
+  push: # push trigger
     branches:
-      - main
-      - release-*
+      - develop # develop 브랜치 배포
 
 permissions:
   contents: read
