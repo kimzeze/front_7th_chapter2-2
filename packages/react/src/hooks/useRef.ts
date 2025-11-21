@@ -1,4 +1,4 @@
-import { useState } from "../core";
+import { useState } from "../core/hooks";
 
 /**
  * 리렌더링되어도 변경되지 않는 참조(reference) 객체를 반환합니다.
