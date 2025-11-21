@@ -15,6 +15,10 @@
     "./client": {
       "types": "./src/client/index.ts",
       "import": "./src/client/index.ts"
+    },
+    "./jsx-runtime": {
+      "types": "./src/core/jsx-runtime.ts",
+      "import": "./src/core/jsx-runtime.ts"
     }
   },
   "scripts": {
