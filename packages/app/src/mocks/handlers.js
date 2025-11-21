@@ -1,7 +1,7 @@
 import { http, HttpResponse } from "msw";
 import items from "./items.json";
 
-const delay = async () => await new Promise((resolve) => setTimeout(resolve, 200));
+const delay = async () => await new Promise((resolve) => setTimeout(resolve, 1000));
 
 // 카테고리 추출 함수
 function getUniqueCategories() {
