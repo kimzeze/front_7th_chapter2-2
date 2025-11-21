@@ -1657,9 +1657,9 @@
 
 ### Step 6.3: export 설정
 
-- [ ] **파일 열기:** `packages/react/src/core/index.ts`
+- [x] **파일 열기:** `packages/react/src/core/index.ts`
 
-- [ ] **export 추가:**
+- [x] **export 추가:**
 
   ```typescript
   export { createElement, Fragment } from "./elements";
@@ -1667,9 +1667,9 @@
   export { setup } from "./setup";
   ```
 
-- [ ] **파일 열기:** `packages/react/src/index.ts`
+- [x] **파일 열기:** `packages/react/src/index.ts`
 
-- [ ] **export 추가:**
+- [x] **export 추가:**
 
   ```typescript
   export { createRoot } from "./client";
@@ -1677,9 +1677,9 @@
   export type { VNode } from "./core/types";
   ```
 
-- [ ] **저장**
+- [x] **저장**
 
-- [ ] **커밋:**
+- [x] **커밋:**
   ```bash
   git add packages/react/src/core/index.ts packages/react/src/index.ts
   git commit -m "chore: export hooks from index"
@@ -1689,15 +1689,15 @@
 
 ### Step 6.4: 기본 과제 전체 테스트
 
-- [ ] **전체 테스트 실행:**
+- [x] **전체 테스트 실행:**
 
   ```bash
   pnpm run test:basic
   ```
 
-- [ ] **결과 확인:**
-  - [ ] `basic.equals.test.tsx` - 모두 통과
-  - [ ] `basic.mini-react.test.tsx` - 모두 통과
+- [x] **결과 확인:**
+  - [x] `basic.equals.test.tsx` - 모두 통과
+  - [x] `basic.mini-react.test.tsx` - 모두 통과
 
 - [ ] **실패하는 테스트가 있다면:**
   1. 에러 메시지 읽기

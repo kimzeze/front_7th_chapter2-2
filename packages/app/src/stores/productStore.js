@@ -18,8 +18,8 @@ export const initialProductState = {
   error: null,
   status: "idle",
 
-  // 카테고리 목록
-  categories: {},
+  // 카테고리 목록 (null = 아직 로드 안됨, {} = 로드 중, {...} = 로드 완료)
+  categories: null,
 };
 
 /**
