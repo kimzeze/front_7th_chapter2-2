@@ -1,5 +1,5 @@
 import { DependencyList } from "./types";
-import { useRef } from "./useRef";
+import { useState } from "../core/hooks";
 import { shallowEquals } from "../utils";
 
 /**
@@ -12,23 +12,24 @@ import { shallowEquals } from "../utils";
  * @returns 메모이제이션된 값
  */
 export const useMemo = <T>(factory: () => T, deps: DependencyList, equals = shallowEquals): T => {
-  // 이전 의존성 배열과 계산된 값을 저장
-  const cache = useRef<{
+  // useState로 캐시 관리 (useRef 대신)
+  const [cache, setCache] = useState<{
     value: T;
     deps: DependencyList;
-  } | null>(null);
+  }>(() => ({
+    value: factory(),
+    deps,
+  }));
 
-  // 첫 렌더링이거나 의존성이 변경된 경우
-  if (cache.current === null || !equals(cache.current.deps, deps)) {
-    // factory 함수 실행하여 새 값 계산
-    const value = factory();
-
-    // 캐시에 저장
-    cache.current = { value, deps };
-
-    return value;
+  // 의존성이 변경되었는지 확인
+  if (!equals(cache.deps, deps)) {
+    // 변경되었으면 새 값 계산하고 캐시 업데이트
+    const newValue = factory();
+    const newCache = { value: newValue, deps };
+    setCache(newCache);
+    return newValue;
   }
 
   // 의존성이 변경되지 않았으면 캐시된 값 반환
-  return cache.current.value;
+  return cache.value;
 };
