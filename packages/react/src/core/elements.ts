@@ -101,3 +101,8 @@ export const createChildPath = (
   /* 3. 일반 요소는 인덱스만 사용 */
   return `${parentPath}.${index}`;
 };
+
+/**
+ * JSX Runtime exports for automatic JSX transformation
+ */
+export { createElement as jsx, createElement as jsxs, Fragment };

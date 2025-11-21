@@ -17,8 +17,8 @@
       "import": "./src/client/index.ts"
     },
     "./jsx-runtime": {
-      "types": "./src/core/jsx-runtime.ts",
-      "import": "./src/core/jsx-runtime.ts"
+      "types": "./src/core/elements.ts",
+      "import": "./src/core/elements.ts"
     }
   },
   "scripts": {

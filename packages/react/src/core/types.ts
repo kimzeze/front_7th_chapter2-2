@@ -8,6 +8,8 @@ export interface FunctionComponent<P extends Props> {
   displayName?: string;
 }
 
+export type ComponentType<P extends Props = Props> = FunctionComponent<P>;
+
 export interface VNode {
   type: string | symbol | React.ComponentType;
   key: string | null;
