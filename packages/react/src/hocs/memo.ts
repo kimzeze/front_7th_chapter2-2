@@ -1,4 +1,3 @@
-import { useRef } from "../hooks";
 import { type FunctionComponent, type VNode } from "../core";
 import { shallowEquals } from "../utils";
 
@@ -11,17 +10,18 @@ import { shallowEquals } from "../utils";
  * @returns 메모이제이션이 적용된 새로운 컴포넌트
  */
 export function memo<P extends object>(Component: FunctionComponent<P>, equals = shallowEquals) {
-  const MemoizedComponent: FunctionComponent<P> = (props) => {
-    const cache = useRef<{ props: P; result: VNode } | null>(null);
+  // 클로저로 캐시 저장 (hooks 사용 불가 - HOC는 매번 새 인스턴스 생성됨)
+  let cache: { props: P; result: VNode } | null = null;
 
-    if (!cache.current || !equals(cache.current.props, props)) {
-      cache.current = {
+  const MemoizedComponent: FunctionComponent<P> = (props) => {
+    if (!cache || !equals(cache.props, props)) {
+      cache = {
         props,
         result: Component(props),
       };
     }
 
-    return cache.current.result;
+    return cache.result;
   };
 
   MemoizedComponent.displayName = `Memo(${Component.displayName || Component.name})`;
