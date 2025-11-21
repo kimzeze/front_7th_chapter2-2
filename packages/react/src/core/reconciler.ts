@@ -173,7 +173,8 @@ const update = (parentDom: HTMLElement, node: VNode, instance: Instance, path: s
 
   // 2. Fragment
   if (node.type === Fragment) {
-    const childInstances = reconcileChildren(parentDom, node.props.children || [], instance.children, path);
+    const children = node.props?.children || [];
+    const childInstances = reconcileChildren(parentDom, children, instance.children, path);
 
     return {
       ...instance,
@@ -194,7 +195,8 @@ const update = (parentDom: HTMLElement, node: VNode, instance: Instance, path: s
   updateDomProps(dom, instance.node.props, node.props);
 
   // Children reconcile
-  const childInstances = reconcileChildren(dom, node.props.children || [], instance.children, path);
+  const children = node.props?.children || [];
+  const childInstances = reconcileChildren(dom, children, instance.children, path);
 
   return {
     ...instance,
@@ -439,7 +441,9 @@ const mountComponent = (parentDom: HTMLElement, node: VNode, path: string): Inst
 
     // 3. 실행 결과를 실제 DOM으로 mount
     //    <div>5</div> → 진짜 DOM 요소
-    const childInstance = mount(parentDom, renderedVNode, path);
+    //    자식에게 새로운 경로 생성 (컴포넌트의 자식은 .child 경로 사용)
+    const childPath = createChildPath(path, renderedVNode.key, 0, renderedVNode.type);
+    const childInstance = mount(parentDom, renderedVNode, childPath);
 
     // 4. 컴포넌트 인스턴스 반환
     return {
@@ -501,8 +505,10 @@ const updateComponent = (parentDom: HTMLElement, node: VNode, instance: Instance
 
     // 3. 이전 자식과 새 자식을 비교 (reconcile)
     //    예: <div>0</div> vs <div>1</div> → 텍스트만 바꿈
+    //    자식에게 새로운 경로 생성
     const oldChild = instance.children[0];
-    const newChild = reconcile(parentDom, oldChild, renderedVNode, path);
+    const childPath = createChildPath(path, renderedVNode.key, 0, renderedVNode.type);
+    const newChild = reconcile(parentDom, oldChild, renderedVNode, childPath);
 
     // 4. 업데이트된 인스턴스 반환 (새 path 포함)
     return {
